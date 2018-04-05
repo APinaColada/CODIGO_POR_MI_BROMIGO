@@ -1,7 +1,8 @@
 #include "Tuples.h"
 #include <string.h>
 
-//Creates Course, Student, Grade Schema
+//Creates Course, Student ID, Grade Schema
+//Key: Student ID
 CSG *createCSG(char *course, int SID, char *grade) {
     CSG *CSGP = malloc(sizeof(CSG));
     CSGP->course = malloc(sizeof(char)*100);
@@ -14,7 +15,8 @@ CSG *createCSG(char *course, int SID, char *grade) {
     return CSGP;
 }
 
-//Creates Student, Name, Address, and Phone Schema
+//Creates Student ID, Name, Address, and Phone Schema
+//Key: Student ID
 SNAP *createSNAP(int SID, char *name, char *address, int phone) {
     SNAP *SNAPP = malloc(sizeof(SNAP));
     SNAPP->SID = SID;
@@ -29,6 +31,7 @@ SNAP *createSNAP(int SID, char *name, char *address, int phone) {
 }
 
 //Creates Course, Prerequisite Schema
+//Key: Course
 CP *createCP(char *C, char *P) {
     CP *CPP = malloc(sizeof(CP));
     CPP->course = malloc(sizeof(char)*100);
@@ -41,6 +44,7 @@ CP *createCP(char *C, char *P) {
 }
 
 //Creates Course, Day, Hour Schema
+//Key: Course
 CDH *createCDH(char *C, char *D, char *H) {
     CDH *CDHP = malloc(sizeof(CDH));
     CDHP->course = malloc(sizeof(char)*100);
