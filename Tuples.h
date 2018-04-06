@@ -16,7 +16,7 @@ struct SNAP {
     int SID;
     char *name;
     char *address;
-    int phone;
+    char *phone;
     struct SNAP *next;
 };
 typedef struct SNAP SNAP;
@@ -45,7 +45,7 @@ typedef struct CR CR;
 
 //function prototypes
 CSG *createCSG(char *, int, char *);
-SNAP *createSNAP(int, char *, char *, int);
+SNAP *createSNAP(int, char *, char *, char *);
 CP *createCP(char *, char *);
 CDH *createCDH(char *, char *, char *);
 CR *createCR(char *, char *);
