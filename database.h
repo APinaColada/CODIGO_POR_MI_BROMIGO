@@ -21,7 +21,7 @@ struct Attr_s {
 typedef struct Tuple_s Tuple_t;
 struct Tuple_s {
     Tuple_t *next; /* embedded Link_t* */
-    int nattrs;
+    int n_attrs;
     Attr_t *attr;
 };
 
@@ -30,7 +30,7 @@ struct Table_s {
     Table_t *next; /* embedded Link_t* */
     char *name;
     Tuple_t *schema;
-    int nbuckets;
+    int n_buckets;
     Tuple_t **ht;
 };
 
