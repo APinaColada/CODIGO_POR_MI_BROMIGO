@@ -1,6 +1,7 @@
 #include "Tuples.h"
 #include <string.h>
 
+/*
 //Creates Course, Student ID, Grade Schema
 //Key: Student ID
 CSG *createCSG(char *course, int SID, char *grade) {
@@ -59,6 +60,8 @@ CR *createCR(char *C, char *R) {
 
     return CRP;
 }
+
+*/
 
 int equal_SNAP(SNAP* s1, SNAP* s2)
 {
