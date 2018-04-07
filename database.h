@@ -126,7 +126,7 @@ CR *createCR(char *C, char *R) {
     return CRP;
 }
 
-*/
+
 
 int equal_SNAP(SNAP* s1, SNAP* s2)
 {
@@ -171,5 +171,7 @@ int equal_CR(CR* c1, CR* c2)
   if (!(strcmp(c1->course,c2->course) == 0) && !((strcmp(c1->course,"*") == 0) || (strcmp(c2->course,"*") == 0))) return 0;
   if (!(strcmp(c1->room,c2->room) == 0) && !((strcmp(c1->room,"*") == 0) || (strcmp(c2->room,"*") == 0))) return 0;
   return 1;//All are the same! Success
+}
+*/
 }
 
