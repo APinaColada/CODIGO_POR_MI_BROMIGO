@@ -10,7 +10,7 @@ void db_addtable(Database_t *db, const char *name, const char *schema){
 	tbl->name = name;
 	tbl-> schema = schema;
 	tbl-> next = NULL;
-	tbl-> n_buckets = 0;
+	tbl-> size = 0;
 	tbl-> 
 }
 
