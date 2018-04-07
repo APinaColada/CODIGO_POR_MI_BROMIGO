@@ -31,7 +31,7 @@ struct Table_s {
     char *name;
     Tuple_t *schema;
     int n_buckets;
-    Tuple_t **ht;
+    Tuple_s main[109]; 
 };
 
 typedef struct Database_s Database_t;
