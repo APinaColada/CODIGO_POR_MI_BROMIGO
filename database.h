@@ -1,6 +1,8 @@
 #pragma once
 #include <string.h>
 #include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 typedef enum { INTEGER, STRING, STAR } Type;
 
@@ -27,11 +29,11 @@ struct Tuple_s {
 
 typedef struct Table_s Table_t;
 struct Table_s {
-    Tuple_t *schema; //Generic Schema for the generic tuple
+    char *schema; //Generic Schema for the generic tuple
     Table_t *next; /* embedded Link_t* */
-    Tuple_s main[109];
+    struct Tuple_s main[109];
     int size;
-    int *secondary[109]; //implemented as a 2D array to hold variable amounts of data
+    int **secondary; //implemented as a 2D array to hold variable amounts of data
     char *name;
 };
 
@@ -47,9 +49,9 @@ struct Result_s {
     Tuple_t *tuple;
 };
 
-Database_t *db_create(const char *name);
+Database_t *db_create(char *name);
 void db_destroy(Database_t *db);
-void db_addtable(Database_t *db, const char *name, const char *schema);
+void db_addtable(Database_t *db, char *name, char *schema);
 Database_t *db_load(const char *name);
 bool db_dump(Database_t *db);
 bool db_insert(Database_t *db, const char *row, const char *tblname);
@@ -174,5 +176,5 @@ int equal_CR(CR* c1, CR* c2)
   return 1;//All are the same! Success
 }
 */
-}
+
 
