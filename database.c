@@ -2,16 +2,39 @@
 
 Database_t *db_create(const char *name) {
 	Database_s *db = malloc(sizeof(Database_s));
-	db->name       = name;
-	db->tbl        = NULL;
+	db -> name       = name;
+	db -> tbl        = NULL;
+	return db;
 }
+
+
 void db_addtable(Database_t *db, const char *name, const char *schema){
-	Table_s *tbl = malloc(sizeof(Table_s));
-	tbl->   name = name;
-	tbl-> schema = schema;
-	tbl->   next = NULL;
-	tbl->   size = 0;
-	tbl-> 
+	Table_s *tbl  = malloc(sizeof(Table_s));
+	tbl -> name   = name;
+	tbl -> schema = schema;
+	tbl -> next   = NULL;
+	tbl -> size   = 0;
+	
+	//traverses the table list until it finds an opening to place the new table in
+	Table_s next = db -> tbl;
+	if (next == NULL) {
+		//if there is nothing in the database
+		db -> tbl = tbl;
+	} else {
+		//if it needs to traverse the list
+		while (next -> next != NULL) {
+			next = next -> next;
+		}
+		next -> next = tbl;
+	}
+	
+	int n_attr = 0;
+	int i      = 0;
+	while (schema[i] != NULL) {
+		n_attr += 1;
+	}
+	
+	db -> secondary = malloc(sizeof(int*) * (n_attr - 1));
 }
 
 /*
