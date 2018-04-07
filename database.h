@@ -27,17 +27,18 @@ struct Tuple_s {
 
 typedef struct Table_s Table_t;
 struct Table_s {
+    Tuple_t *schema; //Generic Schema for the generic tuple
     Table_t *next; /* embedded Link_t* */
+    Tuple_s main[109];
+    int size;
+    int *secondary[109]; //implemented as a 2D array to hold variable amounts of data
     char *name;
-    Tuple_t *schema;
-    int n_buckets;
-    Tuple_s main[109]; 
 };
 
 typedef struct Database_s Database_t;
 struct Database_s {
-    char *name;
     Table_t *tbl;
+    char *name;
 };
 
 typedef struct Result_s Result_t;
