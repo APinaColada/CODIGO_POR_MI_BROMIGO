@@ -7,10 +7,10 @@ Database_t *db_create(const char *name) {
 }
 void db_addtable(Database_t *db, const char *name, const char *schema){
 	Table_s *tbl = malloc(sizeof(Table_s));
-	tbl->name = name;
+	tbl->   name = name;
 	tbl-> schema = schema;
-	tbl-> next = NULL;
-	tbl-> size = 0;
+	tbl->   next = NULL;
+	tbl->   size = 0;
 	tbl-> 
 }
 
