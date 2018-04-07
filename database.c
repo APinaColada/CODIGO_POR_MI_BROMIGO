@@ -1,22 +1,22 @@
 #include "database.h"
 
-Database_t *db_create(const char *name) {
-	Database_s *db = malloc(sizeof(Database_s));
+Database_t *db_create(char *name) {
+    struct Database_s *db = malloc(sizeof(struct Database_s));
 	db -> name       = name;
 	db -> tbl        = NULL;
 	return db;
 }
 
 
-void db_addtable(Database_t *db, const char *name, const char *schema){
-	Table_s *tbl  = malloc(sizeof(Table_s));
+void db_addtable(Database_t *db, char *name, char *schema){
+	struct Table_s *tbl  = malloc(sizeof(struct Table_s));
 	tbl -> name   = name;
 	tbl -> schema = schema;
 	tbl -> next   = NULL;
 	tbl -> size   = 0;
 	
 	//traverses the table list until it finds an opening to place the new table in
-	Table_s next = db -> tbl;
+	Table_t *next = db -> tbl;
 	if (next == NULL) {
 		//if there is nothing in the database
 		db -> tbl = tbl;
@@ -30,11 +30,17 @@ void db_addtable(Database_t *db, const char *name, const char *schema){
 	
 	int n_attr = 0;
 	int i      = 0;
-	while (schema[i] != NULL) {
+	while (schema[i] != '\0') {
 		n_attr += 1;
+        i++;
 	}
 	
-	db -> secondary = malloc(sizeof(int*) * (n_attr - 1));
+	tbl -> secondary = malloc(sizeof(int) * (n_attr - 1));
+    
+    //creates the array of size 109 for each secondary index
+    for (i = 0; i < (n_attr - 1); i++) {
+        tbl -> secondary[i] = malloc(sizeof(int) * 109);
+    }
 }
 
 /*
