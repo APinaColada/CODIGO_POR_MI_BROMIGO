@@ -5,10 +5,18 @@ Database_t *db_create(const char *name) {
 	db->name       = name;
 	db->tbl        = NULL;
 }
+void db_addtable(Database_t *db, const char *name, const char *schema){
+	Table_s *tbl = malloc(sizeof(Table_s));
+	tbl->name = name;
+	tbl-> schema = schema;
+	tbl-> next = NULL;
+	tbl-> n_buckets = 0;
+	tbl-> 
+}
 
 /*
 void db_destroy(Database_t *db);
-void db_addtable(Database_t *db, const char *name, const char *schema);
+
 Database_t *db_load(const char *name);
 bool db_dump(Database_t *db);
 bool db_insert(Database_t *db, const char *row, const char *tblname);
