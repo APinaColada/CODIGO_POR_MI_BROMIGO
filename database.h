@@ -1,5 +1,50 @@
-#include "Tuples.h"
+
 #include <string.h>
+#include <stdbool.h>
+
+typedef enum { INTEGER, STRING, STAR } Type;
+
+typedef struct Link_s Link_t;
+struct Link_s {
+    Link_t *next;
+};
+
+typedef struct Attr_s Attr_t;
+struct Attr_s {
+    Attr_t *next; /* embedded Link_t* */
+    char *name;
+    Type type;  /* one of INTEGER, STRING, or STAR */
+    int ival;   /* set if type == INTEGER */
+    char *sval; /* set if type == STRING */
+};
+
+typedef struct Tuple_s Tuple_t;
+struct Tuple_s {
+    Tuple_t *next; /* embedded Link_t* */
+    int nattrs;
+    Attr_t *attr;
+};
+
+typedef struct Table_s Table_t;
+struct Table_s {
+    Table_t *next; /* embedded Link_t* */
+    char *name;
+    Tuple_t *schema;
+    int nbuckets;
+    Tuple_t **ht;
+};
+
+typedef struct Database_s Database_t;
+struct Database_s {
+    char *name;
+    Table_t *tbl;
+};
+
+typedef struct Result_s Result_t;
+struct Result_s {
+    Result_t *next; /* embedded Link_t* */
+    Tuple_t *tuple;
+};
 
 /*
 //Creates Course, Student ID, Grade Schema
