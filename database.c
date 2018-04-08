@@ -42,16 +42,36 @@ void db_addtable(Database_t *db, char *name, char *schema){
         tbl -> secondary[i] = malloc(sizeof(int) * 109);
     }
 }
+
+Tuple_s db_create_Tuple(char *row, Table_s tbl){
+	struct Tuple_s *tpl = malloc(sizeof(struct Tuple_s));
+	tpl->next = NULL;
+	char* rowcp = strdup(row);
+	char* token = strtok(rowcp, "|");
+	char* schema = tbl->schema;
+	char* schemacp = strdup(schema);
+	char* sch = strtok(schemacp, "|");
+	while ((token != NULL) && (sch != NULL ) {
+       		struct Attr_s *attr = malloc(sizeof(struct Attr_s));
+		attr->name = sch;
+		attr->type = STRING; //figure out way to differentiate type later...
+		attr->sval = token;
+		attr->next = NULL;
+   	    	token = strtok(NULL, "|");
+		sch = strtok(NULL, "|");
+		tpl->n_attrs++;
+		if(tpl->attr == NULL){
+			tpl->attr = attr;
+		}
+		else{
+			tpl->attr->next = attr;
+		}
+   	}
+	       return tpl;
+}
 //key is first attribute 
 bool db_insert(Database_t *db, char *row, char *tblname){
-	struct Tuple_s *tpl = malloc(sizeof(struct Tuple_s));
-	tpl-> n_attrs = strlen(tblname);
-	tpl->next = NULL;
-	char* token = strtok(row, "|");
-	while (token != NULL) {
-       		(if
-   	    	token = strtok(NULL, "|");
-   	}
+	
 	Table_t next = db->tbl;
 	if(next == NULL)
 		return NULL;
