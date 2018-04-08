@@ -64,7 +64,7 @@ Tuple_t *db_create_tuple(const char *row, Table_t *tbl) {
         if (tpl->attr == NULL) {
             tpl->attr = attr;
         } else {
-            Attr_t at = tpl->attr;
+            Attr_t *at = tpl->attr;
             while(at->next != NULL){
                 at = at->next;
         }
