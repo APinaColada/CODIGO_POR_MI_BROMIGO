@@ -72,6 +72,7 @@ Tuple_t *db_create_tuple(const char *row, Table_t *tbl) {
     }
     return tpl;
 }
+}
 // key is first attribute
 bool db_insert(Database_t *db, const char *row, const char *tblname) {
 
