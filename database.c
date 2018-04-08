@@ -46,40 +46,43 @@ void db_addtable(Database_t *db, char *name, char *schema) {
 Tuple_t *db_create_tuple(const char *row, Table_t *tbl) {
     Tuple_t *tpl = malloc(sizeof(Tuple_t));
     tpl->next = NULL;
+    char* first,second;
     char *rowcp = strdup(row);
-    char *token = strtok(rowcp, "|");
+    char *token = strtok_r(rowcp, "|", &first);
     char *schema = tbl->schema;
     char *schemacp = strdup(schema);
-    char *sch = strtok(schemacp, "|");
+    char *sch = strtok_r(schemacp, "|", &second);
     while ((token != NULL) && (sch != NULL)) {
         Attr_t *attr = malloc(sizeof(struct Attr_s));
         attr->name = sch;
         attr->type = STRING; // figure out way to differentiate type later...
         attr->sval = token;
         attr->next = NULL;
-        token = strtok(NULL, "|");
-        sch = strtok(NULL, "|");
+        token = strtok_r(NULL, "|", &first);
+        sch = strtok_r(NULL, "|", &second);
         tpl->n_attrs++;
         if (tpl->attr == NULL) {
             tpl->attr = attr;
         } else {
-            tpl->attr->next = attr;
+            Attr_t at = tpl->attr;
+            while(at->next != NULL){
+                at = at->next;
         }
+            at->next = attr;
     }
     return tpl;
 }
 // key is first attribute
 bool db_insert(Database_t *db, const char *row, const char *tblname) {
 
-    Table_t *next = db->tbl;
-    if (next == NULL) return NULL;
-    while (next->next != NULL) {
-        if (strcmp(next->name, tblname)) {
-            Tuple_t *tuple = db_create_tuple(row, next);
+    Table_t *tbl = db->tbl;
+    while (tbl != NULL) {
+        if (strcmp(tbl->name, tblname)) {
+            Tuple_t *tuple = db_create_tuple(row, tbl);
             next->main[0] = tuple; // for testing to see if it works
             return true;
         } else {
-            next = next->next;
+            tbl = tbl->next;
         }
     }
     return false;
