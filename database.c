@@ -80,7 +80,7 @@ bool db_insert(Database_t *db, const char *row, const char *tblname) {
     while (tbl != NULL) {
         if (strcmp(tbl->name, tblname)) {
             Tuple_t *tuple = db_create_tuple(row, tbl);
-            next->main[0] = tuple; // for testing to see if it works
+            tbl->main[0] = tuple; // for testing to see if it works
             return true;
         } else {
             tbl = tbl->next;
