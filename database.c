@@ -16,16 +16,16 @@ void db_addtable(Database_t *db, char *name, char *schema) {
 
     // traverses the table list until it finds an opening to place the new table
     // in
-    Table_t *tbl = db->tbl;
-    if (tbl == NULL) {
+    Table_t *table = db->tbl;
+    if (table == NULL) {
         // if there is nothing in the database
         db->tbl = tbl;
     } else {
         // if it needs to traverse the list
-        while (tbl->next != NULL) {
-            tbl = tbl->next;
+        while (table->next != NULL) {
+            table = table->next;
         }
-        tbl->next = tbl;
+        table->next = tbl;
     }
 
     /*int n_attrs = 0;
