@@ -46,7 +46,8 @@ void db_addtable(Database_t *db, char *name, char *schema) {
 Tuple_t *db_create_tuple(const char *row, Table_t *tbl) {
     Tuple_t *tpl = malloc(sizeof(Tuple_t));
     tpl->next = NULL;
-    char* first,second;
+    char* first;
+    char* second;
     char *rowcp = strdup(row);
     char *token = strtok_r(rowcp, "|", &first);
     char *schema = tbl->schema;
