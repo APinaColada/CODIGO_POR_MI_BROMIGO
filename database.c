@@ -43,7 +43,7 @@ void db_addtable(Database_t *db, char *name, char *schema){
     }
 }
 
-Tuple_s db_create_tuple(char *row, Table_s tbl){
+ Tuple_t db_create_tuple(char *row, Table_s tbl){
 	struct Tuple_s *tpl = malloc(sizeof(struct Tuple_s));
 	tpl->next = NULL;
 	char* rowcp = strdup(row);
