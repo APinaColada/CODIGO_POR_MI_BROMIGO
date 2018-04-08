@@ -38,7 +38,7 @@ void db_addtable(Database_t *db, char *name, char *schema){
 	tbl -> secondary = malloc(sizeof(int) * (n_attrs - 1));
     
     //creates the array of size 109 for each secondary index
-    for (i = 0; i < (n_attr - 1); i++) {
+    for (i = 0; i < (n_attrs - 1); i++) {
         tbl -> secondary[i] = malloc(sizeof(int) * 109);
     }
 }
