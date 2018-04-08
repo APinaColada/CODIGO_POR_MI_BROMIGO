@@ -28,10 +28,10 @@ void db_addtable(Database_t *db, char *name, char *schema){
 		next -> next = tbl;
 	}
 	
-	int n_attr = 0;
+	int n_attrs = 0;
 	int i      = 0;
 	while (schema[i] != '\0') {
-		n_attr += 1;
+		n_attrs += 1;
         i++;
 	}
 	
@@ -42,13 +42,35 @@ void db_addtable(Database_t *db, char *name, char *schema){
         tbl -> secondary[i] = malloc(sizeof(int) * 109);
     }
 }
-
+//key is first attribute 
+bool db_insert(Database_t *db, char *row, char *tblname){
+	struct Tuple_s *tpl = malloc(sizeof(struct Tuple_s));
+	tpl-> n_attrs = strlen(tblname);
+	tpl->next = NULL;
+	char* token = strtok(row, "|");
+	while (token != NULL) {
+       		(if
+   	    	token = strtok(NULL, "|");
+   	}
+	Table_t next = db->tbl;
+	if(next == NULL)
+		return NULL;
+	while(next -> next != NULL){
+		if(strcmp(next->name, tblname){
+			
+		}
+		else{
+			next = next->next;
+		}
+	}
+		
+}
 /*
 void db_destroy(Database_t *db);
 
 Database_t *db_load(const char *name);
 bool db_dump(Database_t *db);
-bool db_insert(Database_t *db, const char *row, const char *tblname);
+
 void db_delete(Database_t *db, const char *filter, const char *tblname);
 Result_t *db_lookup(Database_t *db, const char *tuple, const char *tblname);
 Table_t *db_select(Table_t *tbl, const char *cond);
