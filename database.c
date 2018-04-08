@@ -9,23 +9,23 @@ Database_t *db_create(char *name) {
 
 void db_addtable(Database_t *db, char *name, char *schema) {
     struct Table_s *tbl = malloc(sizeof(struct Table_s));
-    tbl->name = name;
-    tbl->schema = schema;
+    tbl->name = strdup(name);
+    tbl->schema = strdup(schema);
     tbl->next = NULL;
     tbl->size = 0;
 
     // traverses the table list until it finds an opening to place the new table
     // in
-    Table_t *next = db->tbl;
-    if (next == NULL) {
+    Table_t *tbl = db->tbl;
+    if (tbl == NULL) {
         // if there is nothing in the database
         db->tbl = tbl;
     } else {
         // if it needs to traverse the list
-        while (next->next != NULL) {
-            next = next->next;
+        while (tbl->next != NULL) {
+            tbl = tbl->next;
         }
-        next->next = tbl;
+        tbl->next = tbl;
     }
 
     /*int n_attrs = 0;
