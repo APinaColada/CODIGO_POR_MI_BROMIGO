@@ -28,7 +28,7 @@ void db_addtable(Database_t *db, char *name, char *schema) {
         next->next = tbl;
     }
 
-    int n_attrs = 0;
+    /*int n_attrs = 0;
     int i = 0;
     while (schema[i] != '\0') {
         n_attrs += 1;
@@ -40,7 +40,7 @@ void db_addtable(Database_t *db, char *name, char *schema) {
     // creates the array of size 109 for each secondary index
     for (i = 0; i < (n_attrs - 1); i++) {
         tbl->secondary[i] = malloc(sizeof(int) * 109);
-    }
+    }*/
 }
 
 Tuple_t *db_create_tuple(const char *row, Table_t *tbl) {
