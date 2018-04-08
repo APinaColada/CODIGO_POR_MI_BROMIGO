@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-typedef enum { INTEGER, STRING, STAR } Type;
+typedef enum {STRING, STAR } Type;
 
 typedef struct Link_s Link_t;
 struct Link_s {
@@ -15,8 +15,7 @@ typedef struct Attr_s Attr_t;
 struct Attr_s {
     Attr_t *next; /* embedded Link_t* */
     char *name;
-    Type type;  /* one of INTEGER, STRING, or STAR */
-    int ival;   /* set if type == INTEGER */
+    Type type;  /* one of STRING, or STAR */
     char *sval; /* set if type == STRING */
 };
 
