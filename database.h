@@ -29,9 +29,9 @@ struct Tuple_s {
 
 typedef struct Table_s Table_t;
 struct Table_s {
-    char *schema; //Generic Schema for the generic tuple
     Table_t *next; /* embedded Link_t* */
-    struct Tuple_s main[109];
+    char *schema; //Generic Schema for the generic tuple
+    Tuple_t *main[109];
     int size;
     int **secondary; //implemented as a 2D array to hold variable amounts of data
     char *name;
@@ -176,5 +176,3 @@ int equal_CR(CR* c1, CR* c2)
   return 1;//All are the same! Success
 }
 */
-
-
