@@ -1,6 +1,7 @@
 #include "database.h"
 
 #define STREQ(s1, s2) (strcmp((s1), (s2)) == 0)
+#define ATT_Size 50
 
 static int tuple_hash(Tuple_t *tpl);
 
@@ -14,7 +15,7 @@ void db_addtable(Database_t *db, char *name, char *schema) {
     Table_t *table = calloc(1, sizeof(Table_t));
     table->name = strdup(name);
     table->schema = strdup(schema);
-
+    
     Table_t *tbl = db->tbl;
     if (tbl == NULL) {
         // if there is nothing in the database
@@ -44,8 +45,7 @@ Tuple_t *tuple_create(const char *schema, const char *row) {
 
         value = strtok_r(NULL, "|", &rowbrkp);
         col = strtok_r(NULL, "|", &schemabrkp);
-
-        tuple->n_attrs++;
+        tuple->n_attrs += 1;
         if (tuple->attr == NULL) {
             tuple->attr = attr;
         } else {
@@ -111,7 +111,7 @@ bool db_insert(Database_t *db, const char *name, const char *row) {
     Table_t *tbl = db_gettable(db, name);
 
     if (tbl != NULL) {
-        Tuple_t *tuple = tuple_create(tbl->schema, row);
+        Tuple_t *tuple = tuple_create(tbl -> schema, row);
         int h = tuple_hash(tuple);
         if (tbl->ht[h] == NULL) {
             tbl->ht[h] = tuple;
@@ -126,17 +126,6 @@ bool db_insert(Database_t *db, const char *name, const char *row) {
     return false;
 }
 
-Result_t *createResult(Tuple_t *tuple) {
-    Result_t *result = malloc(sizeof(Result_t));
-    result -> tuple = tuple;
-    result -> next = NULL;
-    return result;
-}
-
-void destroy_result(Result_t *result) {
-    free(result);
-}
-
 void print_tuple(Tuple_t *tuple) {
     int n = tuple -> n_attrs;
     Attr_t *attr = tuple -> attr;
@@ -146,65 +135,69 @@ void print_tuple(Tuple_t *tuple) {
     printf("\n");
 }
 
-void print_result(Result_t *res) {
-    while (res -> next != NULL) {
-        print_tuple(res -> tuple);
-    }
-}
-
-Result_t *db_lookup(Database_t *db, const char *tuple, const char *tblname) {
-    if (db -> tbl == NULL) {
-        printf("Error 1: Null Database\n");
+Tuple_t *db_lookup(Database_t *db, const char *tuple, const char *tblname, const char *schema) {
+    
+    //remember to destroy the tuple at the end
+    Tuple_t *tple = tuple_create(schema, tuple);
+    Table_t *tbl  = db_gettable(db, tblname);
+    int index     = tuple_hash(tple);
+    
+    if (tbl -> ht[index] == NULL) {
+        printf("Error: Tuple not found\n");
         return NULL;
-    }
-    Table_t *tbl = db -> tbl;
-    printf("%s\n", tbl->name);
-    
-    while (tbl != NULL) {
-        if (strcmp(tblname, tbl -> name) == 0) {
-            break;
-        } else {
-            tbl = tbl -> next;
-        }
-    }
-    
-    int i = 0;
-    char key[50] = "";
-    int key_val = 0;
-    int index;
-    
-    while (tuple[i] != '|' || tuple[i] == '\0') {
-        key[i] = tuple[i];
-        key_val += (int) tuple[i];
-        i++;
-    }
-    
-    printf("Key: %s\n", key);
-    printf("Key Value: %d\n", key_val);
-    if (strcmp(key, "*") == 0) {
-        //This means that the key hasn't been given so we need to brute force search the table
     } else {
-        index = key_val % 109;
-        printf("Hash from: %d\n", index);
-        if (tbl -> main[index] == NULL) {
-            printf("Error: Tuple not found\n");
-        } else {
-            Tuple_t *tuple_s = tbl -> main[index];
-            printf("Tuple attributes: %d\n", tuple_s -> n_attrs);
-            printf("Shiiiit\n");
-            //There could be a problem with this tuple above
-            bool equals = equals_ts(tuple_s, strdup(tuple));
-            if (equals == true) {
-                return createResult(tuple_s);
+        
+        Tuple_t *target_tple = tbl -> ht[index];
+        char **atts = return_atts(tple);
+        char **target_atts = return_atts(target_tple);
+        int n = tple -> n_attrs;
+        int target_n = target_tple -> n_attrs;
+        //Checking to see if the attributes of the tuples are the same
+        if (n != target_n) {
+            printf("Error: Tuple not equal\n");
+            return NULL;
+        }
+        
+        //checking to see if the attributes of the tuples are equal
+        for (int i = 0; i < n; i++) {
+            if (strcmp(atts[i], "*") == 0) {
+                //There is no attribute in this case
             } else {
-                printf("Error: Tuple not Equal\n");
+                if (strcmp(atts[i], target_atts[i]) != 0) {
+                    printf("Error: Tuple not equal\n");
+                    return NULL;
+                }
             }
         }
+        //This needs to be checked because it should work
+        //destroy_atts(target_atts, target_n);
+        destroy_atts(atts, n);
+        return target_tple;
     }
-    
     return NULL;
 }
 
+char **return_atts(Tuple_t *tuple) {
+    int n       = tuple -> n_attrs;
+    char **array;
+    array = malloc(sizeof(char*) * n);
+    for (int j = 0; j < n; j++) {
+        array[j] = malloc(sizeof(char) * ATT_Size);
+    }
+    Attr_t *attr = tuple -> attr;
+    for (int i = 0; i < n; i++) {
+        array[i] = attr -> value;
+        attr = attr -> next;
+    }
+    return array;
+}
+
+void destroy_atts(char** atts, int n) {
+    for (int i = 0; i < n; i++) {
+        free(atts[i]);
+    }
+    free(atts);
+}
 
 //Checks to see if the tuples are equal
 bool equals_tt(Tuple_t *tuple1, Tuple_t *tuple2) {
