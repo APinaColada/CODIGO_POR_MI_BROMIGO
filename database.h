@@ -47,7 +47,22 @@ Table_t *db_project(Table_t *tbl, char *cols);
 Table_t *db_join(Table_t *R, Table_t *S);
 
 void table_print(Table_t *tbl);
+
 void table_destroy(Table_t *tbl);
+
+void print_result(Result_t *res);
+
+void result_destroy(Result_t *res);
+
+void print_tuple(Tuple_t *tuple);
+
+bool equals_ts(Tuple_t *tuple1, char *tuple2);
+
+bool equals_tt(Tuple_t *tuple1, Tuple_t *tuple2);
+
+Result_t *createResult(Tuple_t *tuple);
+
+void destroy_result(Result_t *result);
 
 /*
 //Creates Course, Student ID, Grade Schema
