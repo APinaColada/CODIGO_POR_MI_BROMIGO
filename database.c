@@ -126,6 +126,139 @@ bool db_insert(Database_t *db, const char *name, const char *row) {
     return false;
 }
 
+Result_t *createResult(Tuple_t *tuple) {
+    Result_t *result = malloc(sizeof(Result_t));
+    result -> tuple = tuple;
+    result -> next = NULL;
+    return result;
+}
+
+void destroy_result(Result_t *result) {
+    free(result);
+}
+
+void print_tuple(Tuple_t *tuple) {
+    int n = tuple -> n_attrs;
+    Attr_t *attr = tuple -> attr;
+    for (int i = 0; i < n; i++) {
+        printf("%s    ", attr -> name );
+    }
+    printf("\n");
+}
+
+void print_result(Result_t *res) {
+    while (res -> next != NULL) {
+        print_tuple(res -> tuple);
+    }
+}
+
+Result_t *db_lookup(Database_t *db, const char *tuple, const char *tblname) {
+    if (db -> tbl == NULL) {
+        printf("Error 1: Null Database\n");
+        return NULL;
+    }
+    Table_t *tbl = db -> tbl;
+    printf("%s\n", tbl->name);
+    
+    while (tbl != NULL) {
+        if (strcmp(tblname, tbl -> name) == 0) {
+            break;
+        } else {
+            tbl = tbl -> next;
+        }
+    }
+    
+    int i = 0;
+    char key[50] = "";
+    int key_val = 0;
+    int index;
+    
+    while (tuple[i] != '|' || tuple[i] == '\0') {
+        key[i] = tuple[i];
+        key_val += (int) tuple[i];
+        i++;
+    }
+    
+    printf("Key: %s\n", key);
+    printf("Key Value: %d\n", key_val);
+    if (strcmp(key, "*") == 0) {
+        //This means that the key hasn't been given so we need to brute force search the table
+    } else {
+        index = key_val % 109;
+        printf("Hash from: %d\n", index);
+        if (tbl -> main[index] == NULL) {
+            printf("Error: Tuple not found\n");
+        } else {
+            Tuple_t *tuple_s = tbl -> main[index];
+            printf("Tuple attributes: %d\n", tuple_s -> n_attrs);
+            printf("Shiiiit\n");
+            //There could be a problem with this tuple above
+            bool equals = equals_ts(tuple_s, strdup(tuple));
+            if (equals == true) {
+                return createResult(tuple_s);
+            } else {
+                printf("Error: Tuple not Equal\n");
+            }
+        }
+    }
+    
+    return NULL;
+}
+
+
+//Checks to see if the tuples are equal
+bool equals_tt(Tuple_t *tuple1, Tuple_t *tuple2) {
+    Attr_t *attr1 = tuple1 -> attr;
+    Attr_t *attr2 = tuple2 -> attr;
+    if (tuple1 -> n_attrs == tuple2 -> n_attrs) {
+        int n_attr = tuple1 -> n_attrs;
+        for (int i = 1; i <= n_attr; i++) {
+            if (attr1 -> name != attr2 -> name) {
+                return false;
+            }
+            attr1 = attr1 -> next;
+            attr2 = attr2 -> next;
+        }
+    } else {
+        return false;
+    }
+    return true;
+}
+
+
+bool equals_ts(Tuple_t *tuple1, char *tuple2) {
+    Attr_t *attr1 = tuple1 -> attr;
+    //checks to see the size of the tuple string
+    int i = 0;
+    int n_attrs = 1;
+    while (tuple2[i] != '\0') {
+        if (tuple2[i] == '|') {
+            n_attrs +=1;
+        }
+        i++;
+    }
+    if (tuple1 -> n_attrs == n_attrs) {
+        i = 0;
+        int j = 0;
+        char* key = "";
+        for (int i = 1; i <= n_attrs; i++) {
+            while (tuple2[i] != '|' || tuple2[i] != '\0') {
+                j = 0;
+                key[j] = tuple2[i];
+                i++;
+                j++;
+            }
+            if (attr1 -> name != key) {
+                return false;
+            }
+            key = "";
+        }
+    } else {
+        return false;
+    }
+    return true;
+}
+
 void tuple_print(FILE *fp, Tuple_t *tuple) {
     char *sep = "";
     for (Attr_t *attr = tuple->attr; attr != NULL; attr = attr->next) {
