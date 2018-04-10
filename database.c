@@ -135,6 +135,24 @@ void print_tuple(Tuple_t *tuple) {
     printf("\n");
 }
 
+
+//duplicates the tuple without affecting the actual tuple
+Tuple_t *duplicate(Tuple_t *tuple) {
+    Tuple_t *new_tuple = malloc(sizeof(Tuple_t));
+    //new_tuple -> next = NULL;
+    memcpy(&(new_tuple -> n_attrs), &(tuple -> n_attrs), sizeof(int));
+    memcpy(&(new_tuple -> attr), &(tuple -> attr), sizeof(Attr_t));
+    return new_tuple;
+}
+
+
+ Tuple_t *add_tuple(Tuple_t *target, Tuple_t *addition) {
+     addition -> next = target;
+     return addition;
+ }
+
+
+
 Tuple_t *db_lookup(Database_t *db, const char *tuple, const char *tblname, const char *schema) {
     
     //remember to destroy the tuple at the end
@@ -148,39 +166,52 @@ Tuple_t *db_lookup(Database_t *db, const char *tuple, const char *tblname, const
     } else {
         
         Tuple_t *target_tple = tbl -> ht[index];
-        char **atts = return_atts(tple);
-        char **target_atts = return_atts(target_tple);
-        int n = tple -> n_attrs;
-        int target_n = target_tple -> n_attrs;
+        char **atts          = return_atts(tple);
+        int n                = tple -> n_attrs;
+        
+        Tuple_t *dup = malloc(sizeof(Tuple_t));
+        dup -> n_attrs = -1;
+        
         //Checking to see if the attributes of the tuples are the same
-        if (n != target_n) {
+        if (n != target_tple -> n_attrs) {
             printf("Error: Tuple not equal\n");
             return NULL;
         }
         
-        //checking to see if the attributes of the tuples are equal
-        for (int i = 0; i < n; i++) {
-            if (strcmp(atts[i], "*") == 0) {
-                //There is no attribute in this case
-            } else {
-                if (strcmp(atts[i], target_atts[i]) != 0) {
-                    printf("Error: Tuple not equal\n");
-                    return NULL;
+        if (strcmp(atts[0], "*") == 0) {
+            for (int i = 0; i < 109; i++) {
+                // Brute Force Method
+            }
+        } else {
+            //In the case we have the key for the tuple
+            while (target_tple != NULL) {
+                char **target_atts   = return_atts(target_tple);
+                int target_n         = target_tple -> n_attrs;
+                
+                //checking to see if the attributes of the tuples are equal
+                for (int i = 0; i < n; i++) {
+                    if (strcmp(atts[i], "*") == 0) {
+                        //There is no attribute in this case
+                    } else {
+                        if (strcmp(atts[i], target_atts[i]) != 0) {
+                            printf("Boyo\n");
+                            break;
+                        }
+                    }
                 }
+                //Looks through the tuples at the index
+                dup = add_tuple(dup, duplicate(target_tple));
+                target_tple = target_tple -> next;
             }
         }
-        //This needs to be checked because it should work
-        //destroy_atts(target_atts, target_n);
         destroy_atts(atts, n);
-        return target_tple;
+        return dup;
     }
-    return NULL;
 }
 
 char **return_atts(Tuple_t *tuple) {
     int n       = tuple -> n_attrs;
-    char **array;
-    array = malloc(sizeof(char*) * n);
+    char **array = malloc(sizeof(char*) * n);
     for (int j = 0; j < n; j++) {
         array[j] = malloc(sizeof(char) * ATT_Size);
     }
