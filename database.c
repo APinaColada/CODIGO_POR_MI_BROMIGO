@@ -153,60 +153,34 @@ Tuple_t *duplicate(Tuple_t *tuple) {
 
 
 
-Tuple_t *db_lookup(Database_t *db, const char *tuple, const char *tblname, const char *schema) {
+able_t *db_lookup(Database_t *db, const char *tuple, const char *tblname) {
     
     //remember to destroy the tuple at the end
-    Tuple_t *tple = tuple_create(schema, tuple);
     Table_t *tbl  = db_gettable(db, tblname);
-    int index     = tuple_hash(tple);
-    
-    if (tbl -> ht[index] == NULL) {
-        printf("Error: Tuple not found\n");
-        return NULL;
-    } else {
-        
-        Tuple_t *target_tple = tbl -> ht[index];
-        char **atts          = return_atts(tple);
-        int n                = tple -> n_attrs;
-        
-        Tuple_t *dup = malloc(sizeof(Tuple_t));
-        dup -> n_attrs = -1;
-        
-        //Checking to see if the attributes of the tuples are the same
-        if (n != target_tple -> n_attrs) {
-            printf("Error: Tuple not equal\n");
-            return NULL;
-        }
-        
-        if (strcmp(atts[0], "*") == 0) {
-            for (int i = 0; i < 109; i++) {
-                // Brute Force Method
-            }
-        } else {
-            //In the case we have the key for the tuple
-            while (target_tple != NULL) {
-                char **target_atts   = return_atts(target_tple);
-                int target_n         = target_tple -> n_attrs;
-                
-                //checking to see if the attributes of the tuples are equal
-                for (int i = 0; i < n; i++) {
-                    if (strcmp(atts[i], "*") == 0) {
-                        //There is no attribute in this case
-                    } else {
-                        if (strcmp(atts[i], target_atts[i]) != 0) {
-                            printf("Boyo\n");
-                            break;
-                        }
-                    }
+    Table_t *result = calloc(1, sizeof(Table_t));
+    result->name = strdup(tblname);
+    result->schema = strdup(tbl->schema);
+    Tuple_t *query = tuple_create(tbl->schema, tuple);
+    Tuple_t *temp;
+    for(int i = 0; i < HASHSIZE; i++){
+        temp = NULL;
+        for(Tuple_t *tp = tbl->ht[i]; tp; tp = next){
+            if(tuple_match(query, tp)){
+                if(result->ht[i]==NULL){
+                    result->ht[i] = tp;
                 }
-                //Looks through the tuples at the index
-                dup = add_tuple(dup, duplicate(target_tple));
-                target_tple = target_tple -> next;
+                else{
+                    temp = result->ht[i];
+                    while(temp->next != NULL){
+                        temp = temp->next;
+                    }
+                    temp->next = tp;
+                    
+                }
             }
         }
-        destroy_atts(atts, n);
-        return dup;
     }
+    return result;
 }
 
 char **return_atts(Tuple_t *tuple) {
