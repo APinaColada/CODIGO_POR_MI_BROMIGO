@@ -40,7 +40,7 @@ Database_t *db_load(const char *name);
 bool db_dump(Database_t *db);
 bool db_insert(Database_t *db, const char *table_name, const char *row);
 void db_delete(Database_t *db, const char *table_name, const char *where);
-Tuple_t *db_lookup(Database_t *db, const char *table_name, const char *where, const char *schema);
+Table_t *db_lookup(Database_t *db, const char *table_name, const char *where);
 Table_t *db_select(Table_t *tbl, const char *cond);
 Table_t *db_gettable(Database_t *db, const char *table_name);
 Table_t *db_project(Table_t *tbl, char *cols);
