@@ -14,15 +14,24 @@ int main() {
 
     Table_t *CSG = db_gettable(db, "CSG");
     
-    table_print(CSG);
+    //table_print(CSG);
     
-    Tuple_t *result = db_lookup(db, "PH100|67890|C+", "CSG", "Course|StudentId|Grade");
-    
+    Tuple_t *result = db_lookup(db, "EE200|*|*", "CSG", "Course|StudentId|Grade");
+
     if (result != NULL) {
-        printf("Target: ");
-        tuple_print(stdout,result);
+        printf("Query: \n");
+        
+        while (result -> n_attrs != -1) {
+            tuple_print(stdout,result);
+            result = result -> next;
+        }
+        
+        free(result);
+    } else {
+        printf("Nothing found\n");
     }
     
     db_destroy(db);
     
+    printf("Yippee\n");
 }
