@@ -60,6 +60,30 @@ Tuple_t *tuple_create(const char *schema, const char *row) {
     free(rowcp);
     return tuple;
 }
+Attr_t *attr_clone(Attr_t *attr){
+    Attr_t *clone = calloc(1, sizeof(Attr_t));
+    clone->name = strdup(attr->name);
+    clone->value = strdup(attr->value);
+    return clone;
+}
+
+
+Tuple_t *tuple_clone(Tuple_t *tuple) {
+    Tuple_t *clone = calloc(1, sizeof(Tuple_t));
+    clone-> n_attrs = tuple->n_attrs;
+    Attr_t *attr_Clone = clone->attr;
+    for (Attr_t *attr = tuple->attr; attr != NULL; attr = attr->next) {
+        if(attr_Clone == NULL){
+            attr_Clone = attr_clone(attr);
+            clone->attr = attr_Clone;
+        }
+        else{
+            attr_Clone->next = attr_clone(attr);
+            attr_Clone = attr_Clone->next;
+        }
+    }
+    return clone;
+}
 
 void tuple_destroy(Tuple_t *tuple) {
     if (tuple != NULL) {
@@ -105,7 +129,64 @@ void db_destroy(Database_t *db) {
         free(db);
     }
 }
+//pass in query followed by the tuple
+bool tuple_match(Tuple_t *query, Tuple_t *tuple){
+    Attr_t *q_attr = query->attr;
+    Attr_t *t_attr = tuple->attr;
+    if(query->n_attrs != tuple->n_attrs){
+        return false;
+    }
+    while(q_attr != NULL){
+        if(STREQ(q_attr->value,"*")){
+            
+        }
+        else{
+            if(!STREQ(q_attr->value,t_attr->value)){
+                return false;
+            }
+        }
+        q_attr = q_attr->next;
+        t_attr = t_attr->next;
+    }
+    return true;
+}
+
+void tuple_print(FILE *fp, Tuple_t *tuple) {
+    char *sep = "";
+    for (Attr_t *attr = tuple->attr; attr != NULL; attr = attr->next) {
+        fprintf(fp, "%s%s", sep, attr->value);
+        sep = "|";
+    }
+    fprintf(fp, "\n");
+}
+
+void table_print(Table_t *tbl) {
+    int n = printf("%s\n", tbl->schema);
+    for (int i = 0; i < n; i++)
+        printf("=");
+    printf("\n");
+    for (int i = 0; i < HASHSIZE; i++) {
+        for (Tuple_t *tpl = tbl->ht[i]; tpl != NULL; tpl = tpl->next)
+            tuple_print(stdout, tpl);
+    }
+}
+
+Table_t *db_gettable(Database_t *db, const char *name) {
+    for (Table_t *tbl = db->tbl; tbl != NULL; tbl = tbl->next) {
+        if (STREQ(tbl->name, name)) return tbl;
+    }
+    return NULL;
+}
+
+// hash on primary key - first attribute in tuple
+// string hash from K&R Section 6.6 "Lookup Table"
+static int tuple_hash(Tuple_t *tpl) {
+    int h = 0;
     
+    for (char *s = tpl->attr->value; *s != '\0'; s++)
+        h = *s + 31 * h;
+    return h % HASHSIZE;
+}
 
 bool db_insert(Database_t *db, const char *name, const char *row) {
     Table_t *tbl = db_gettable(db, name);
@@ -135,57 +216,72 @@ void print_tuple(Tuple_t *tuple) {
     printf("\n");
 }
 
-
-//duplicates the tuple without affecting the actual tuple
-Tuple_t *duplicate(Tuple_t *tuple) {
-    Tuple_t *new_tuple = malloc(sizeof(Tuple_t));
-    //new_tuple -> next = NULL;
-    memcpy(&(new_tuple -> n_attrs), &(tuple -> n_attrs), sizeof(int));
-    memcpy(&(new_tuple -> attr), &(tuple -> attr), sizeof(Attr_t));
-    return new_tuple;
+//doing delete brute force way
+void db_delete(Database_t *db, const char *table_name, const char *where){
+    Table_t *tbl = db_gettable(db, table_name);
+    Tuple_t *query = tuple_create(tbl->schema,where);
+    Tuple_t *prev, *next;
+    for (int i = 0; i < HASHSIZE; i++) {
+        prev = NULL;
+        for (Tuple_t *tp = tbl->ht[i]; tp; tp = next) {
+            
+            if (tuple_match(query, tp)) {
+                if(prev == NULL){
+                    tbl->ht[i] = tp->next;
+                    next = tp->next;
+                    tuple_destroy(tp);
+                    
+                }
+                else{
+                    prev->next = tp->next;
+                    next = tp->next;
+                    tuple_destroy(tp);
+                   
+                }
+            }
+            else{
+                prev = tp;
+                next = tp->next;
+                
+            }
+        }
+    }
+    tuple_destroy(query);
 }
 
-
- Tuple_t *add_tuple(Tuple_t *target, Tuple_t *addition) {
-     addition -> next = target;
-     return addition;
- }
-
-
-
-able_t *db_lookup(Database_t *db, const char *tuple, const char *tblname) {
+Table_t *db_lookup(Database_t *db, const char *where, const char *table_name) {
     
     //remember to destroy the tuple at the end
-    Table_t *tbl  = db_gettable(db, tblname);
+    Table_t *tbl  = db_gettable(db, table_name);
     Table_t *result = calloc(1, sizeof(Table_t));
-    result->name = strdup(tblname);
+    result->name = strdup(table_name);
     result->schema = strdup(tbl->schema);
-    Tuple_t *query = tuple_create(tbl->schema, tuple);
+    Tuple_t *query = tuple_create(tbl->schema, where);
     Tuple_t *temp;
     for(int i = 0; i < HASHSIZE; i++){
         temp = NULL;
-        for(Tuple_t *tp = tbl->ht[i]; tp; tp = next){
+        for(Tuple_t *tp = tbl->ht[i]; tp; tp = tp-> next){
             if(tuple_match(query, tp)){
                 if(result->ht[i]==NULL){
                     result->ht[i] = tp;
                 }
                 else{
                     temp = result->ht[i];
-                    while(temp->next != NULL){
+                    while(temp != NULL){
                         temp = temp->next;
+                        
                     }
-                    temp->next = tp;
-                    
+                    temp = tp;
                 }
             }
         }
     }
     return result;
 }
-
 char **return_atts(Tuple_t *tuple) {
     int n       = tuple -> n_attrs;
-    char **array = malloc(sizeof(char*) * n);
+    char **array;
+    array = malloc(sizeof(char*) * n);
     for (int j = 0; j < n; j++) {
         array[j] = malloc(sizeof(char) * ATT_Size);
     }
@@ -211,7 +307,7 @@ bool equals_tt(Tuple_t *tuple1, Tuple_t *tuple2) {
     if (tuple1 -> n_attrs == tuple2 -> n_attrs) {
         int n_attr = tuple1 -> n_attrs;
         for (int i = 1; i <= n_attr; i++) {
-            if (attr1 -> name != attr2 -> name) {
+            if (!(STREQ(attr1 -> value, attr2 -> value))) {
                 return false;
             }
             attr1 = attr1 -> next;
@@ -257,42 +353,7 @@ bool equals_ts(Tuple_t *tuple1, char *tuple2) {
     return true;
 }
 
-void tuple_print(FILE *fp, Tuple_t *tuple) {
-    char *sep = "";
-    for (Attr_t *attr = tuple->attr; attr != NULL; attr = attr->next) {
-        fprintf(fp, "%s%s", sep, attr->value);
-        sep = "|";
-    }
-    fprintf(fp, "\n");
-}
 
-void table_print(Table_t *tbl) {
-    int n = printf("%s\n", tbl->schema);
-    for (int i = 0; i < n; i++)
-        printf("=");
-    printf("\n");
-    for (int i = 0; i < HASHSIZE; i++) {
-        for (Tuple_t *tpl = tbl->ht[i]; tpl != NULL; tpl = tpl->next)
-            tuple_print(stdout, tpl);
-    }
-}
-
-Table_t *db_gettable(Database_t *db, const char *name) {
-    for (Table_t *tbl = db->tbl; tbl != NULL; tbl = tbl->next) {
-        if (STREQ(tbl->name, name)) return tbl;
-    }
-    return NULL;
-}
-
-// hash on primary key - first attribute in tuple
-// string hash from K&R Section 6.6 "Lookup Table"
-static int tuple_hash(Tuple_t *tpl) {
-    int h = 0;
-
-    for (char *s = tpl->attr->value; *s != '\0'; s++)
-        h = *s + 31 * h;
-    return h % HASHSIZE;
-}
 
 /*
 void db_destroy(Database_t *db);

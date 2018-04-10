@@ -40,7 +40,7 @@ Database_t *db_load(const char *name);
 bool db_dump(Database_t *db);
 bool db_insert(Database_t *db, const char *table_name, const char *row);
 void db_delete(Database_t *db, const char *table_name, const char *where);
-Table_t *db_lookup(Database_t *db, const char *table_name, const char *where);
+Table_t *db_lookup(Database_t *db,const char *where, const char *table_name);
 Table_t *db_select(Table_t *tbl, const char *cond);
 Table_t *db_gettable(Database_t *db, const char *table_name);
 Table_t *db_project(Table_t *tbl, char *cols);
@@ -60,11 +60,6 @@ bool equals_tt(Tuple_t *tuple1, Tuple_t *tuple2);
 char **return_atts(Tuple_t *tuple);
 
 void destroy_atts(char** atts, int n);
-
-
-Tuple_t *duplicate(Tuple_t *tuple);
-
-Tuple_t *add_tuple(Tuple_t *target, Tuple_t *addition);
 
 /*
 //Creates Course, Student ID, Grade Schema
