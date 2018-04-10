@@ -61,6 +61,11 @@ char **return_atts(Tuple_t *tuple);
 
 void destroy_atts(char** atts, int n);
 
+
+Tuple_t *duplicate(Tuple_t *tuple);
+
+Tuple_t *add_tuple(Tuple_t *target, Tuple_t *addition);
+
 /*
 //Creates Course, Student ID, Grade Schema
 //Key: Student ID
