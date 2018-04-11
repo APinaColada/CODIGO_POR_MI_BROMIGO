@@ -24,10 +24,14 @@ int main() {
     table_print(CR);
     db_delete(db,"CR", "CS101|*");
     table_print(CR);
-    Table_t *result = db_lookup(db, "*|*|T+", "CSG");
-    printf("Result\n");
+    Table_t *result = db_lookup(db, "EE200|*|*", "CSG");
     table_print(result);
     
+    
+    Table_t *result2 = db_select(db, "C", "EE200", "CSG");
+    table_print(result2);
     db_destroy(db);
+    
+    
     
 }
