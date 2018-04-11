@@ -1,7 +1,6 @@
 #include "database.h"
 
 #define STREQ(s1, s2) (strcmp((s1), (s2)) == 0)
-#define ATT_Size 50
 
 static int tuple_hash(Tuple_t *tpl);
 
@@ -37,12 +36,12 @@ Tuple_t *tuple_create(const char *schema, const char *row) {
     char *rowbrkp;
     char *value = strtok_r(rowcp, "|", &rowbrkp);
     char *col = strtok_r(schemacp, "|", &schemabrkp);
-
+    
     while ((value != NULL) && (col != NULL)) {
         Attr_t *attr = calloc(1, sizeof(Attr_t));
         attr->name = strdup(col);
         attr->value = strdup(value);
-
+        
         value = strtok_r(NULL, "|", &rowbrkp);
         col = strtok_r(NULL, "|", &schemabrkp);
         tuple->n_attrs += 1;
@@ -60,24 +59,23 @@ Tuple_t *tuple_create(const char *schema, const char *row) {
     free(rowcp);
     return tuple;
 }
-Attr_t *attr_clone(Attr_t *attr){
+
+Attr_t *attr_clone(Attr_t *attr) {
     Attr_t *clone = calloc(1, sizeof(Attr_t));
     clone->name = strdup(attr->name);
     clone->value = strdup(attr->value);
     return clone;
 }
 
-
 Tuple_t *tuple_clone(Tuple_t *tuple) {
     Tuple_t *clone = calloc(1, sizeof(Tuple_t));
-    clone-> n_attrs = tuple->n_attrs;
+    clone->n_attrs = tuple->n_attrs;
     Attr_t *attr_Clone = clone->attr;
     for (Attr_t *attr = tuple->attr; attr != NULL; attr = attr->next) {
-        if(attr_Clone == NULL){
+        if (attr_Clone == NULL) {
             attr_Clone = attr_clone(attr);
             clone->attr = attr_Clone;
-        }
-        else{
+        } else {
             attr_Clone->next = attr_clone(attr);
             attr_Clone = attr_Clone->next;
         }
@@ -87,39 +85,39 @@ Tuple_t *tuple_clone(Tuple_t *tuple) {
 
 void tuple_destroy(Tuple_t *tuple) {
     if (tuple != NULL) {
-    Attr_t *attr = tuple->attr;
-
-    while (attr != NULL) {
-        Attr_t *next = attr->next;
-        free(attr->name);
-        free(attr->value);
-        free(attr);
-        attr = next;
-    }
-    free(tuple);
+        Attr_t *attr = tuple->attr;
+        
+        while (attr != NULL) {
+            Attr_t *next = attr->next;
+            free(attr->name);
+            free(attr->value);
+            free(attr);
+            attr = next;
+        }
+        free(tuple);
     }
 }
 
 void table_destroy(Table_t *tbl) {
     if (tbl != NULL) {
-       free(tbl->name);
-       free(tbl->schema);
-       for (int i = 0; i < HASHSIZE; i++) {
-           Tuple_t *tpl = tbl->ht[i];
-           while (tpl) {
-               Tuple_t *next = tpl->next;
-               tuple_destroy(tpl);
-               tpl = next;
-           }
-       }
-       free(tbl);
+        free(tbl->name);
+        free(tbl->schema);
+        for (int i = 0; i < HASHSIZE; i++) {
+            Tuple_t *tpl = tbl->ht[i];
+            while (tpl) {
+                Tuple_t *next = tpl->next;
+                tuple_destroy(tpl);
+                tpl = next;
+            }
+        }
+        free(tbl);
     }
 }
 
 void db_destroy(Database_t *db) {
     if (db != NULL) {
         Table_t *tbl = db->tbl;
-
+        
         free(db->name);
         while (tbl) {
             Table_t *next = tbl->next;
@@ -129,19 +127,19 @@ void db_destroy(Database_t *db) {
         free(db);
     }
 }
-//pass in query followed by the tuple
-bool tuple_match(Tuple_t *query, Tuple_t *tuple){
+
+// pass in query followed by the tuple
+bool tuple_match(Tuple_t *query, Tuple_t *tuple) {
     Attr_t *q_attr = query->attr;
     Attr_t *t_attr = tuple->attr;
-    if(query->n_attrs != tuple->n_attrs){
+    if (query->n_attrs != tuple->n_attrs) {
         return false;
     }
-    while(q_attr != NULL){
-        if(STREQ(q_attr->value,"*")){
+    while (q_attr != NULL) {
+        if (STREQ(q_attr->value, "*")) {
             
-        }
-        else{
-            if(!STREQ(q_attr->value,t_attr->value)){
+        } else {
+            if (!STREQ(q_attr->value, t_attr->value)) {
                 return false;
             }
         }
@@ -173,7 +171,8 @@ void table_print(Table_t *tbl) {
 
 Table_t *db_gettable(Database_t *db, const char *name) {
     for (Table_t *tbl = db->tbl; tbl != NULL; tbl = tbl->next) {
-        if (STREQ(tbl->name, name)) return tbl;
+        if (STREQ(tbl->name, name))
+            return tbl;
     }
     return NULL;
 }
@@ -190,9 +189,9 @@ static int tuple_hash(Tuple_t *tpl) {
 
 bool db_insert(Database_t *db, const char *name, const char *row) {
     Table_t *tbl = db_gettable(db, name);
-
+    
     if (tbl != NULL) {
-        Tuple_t *tuple = tuple_create(tbl -> schema, row);
+        Tuple_t *tuple = tuple_create(tbl->schema, row);
         int h = tuple_hash(tuple);
         if (tbl->ht[h] == NULL) {
             tbl->ht[h] = tuple;
@@ -208,41 +207,36 @@ bool db_insert(Database_t *db, const char *name, const char *row) {
 }
 
 void print_tuple(Tuple_t *tuple) {
-    int n = tuple -> n_attrs;
-    Attr_t *attr = tuple -> attr;
+    int n = tuple->n_attrs;
+    Attr_t *attr = tuple->attr;
     for (int i = 0; i < n; i++) {
-        printf("%s    ", attr -> name );
+        printf("%s    ", attr->name);
     }
     printf("\n");
 }
 
-//doing delete brute force way
-void db_delete(Database_t *db, const char *table_name, const char *where){
+// Assuming primary key can be a wild-card, forced to iterate over all rows
+void db_delete(Database_t *db, const char *table_name, const char *where) {
     Table_t *tbl = db_gettable(db, table_name);
-    Tuple_t *query = tuple_create(tbl->schema,where);
+    Tuple_t *query = tuple_create(tbl->schema, where);
     Tuple_t *prev, *next;
     for (int i = 0; i < HASHSIZE; i++) {
         prev = NULL;
         for (Tuple_t *tp = tbl->ht[i]; tp; tp = next) {
-            
             if (tuple_match(query, tp)) {
-                if(prev == NULL){
+                if (prev == NULL) {
                     tbl->ht[i] = tp->next;
                     next = tp->next;
                     tuple_destroy(tp);
                     
-                }
-                else{
+                } else {
                     prev->next = tp->next;
                     next = tp->next;
                     tuple_destroy(tp);
-                   
                 }
-            }
-            else{
+            } else {
                 prev = tp;
                 next = tp->next;
-                
             }
         }
     }
@@ -250,68 +244,79 @@ void db_delete(Database_t *db, const char *table_name, const char *where){
 }
 
 Table_t *db_lookup(Database_t *db, const char *where, const char *table_name) {
-    
-    //remember to destroy the tuple at the end
-    Table_t *tbl  = db_gettable(db, table_name);
+    Table_t *tbl = db_gettable(db, table_name);
     Table_t *result = calloc(1, sizeof(Table_t));
     result->name = strdup(table_name);
     result->schema = strdup(tbl->schema);
     Tuple_t *query = tuple_create(tbl->schema, where);
-    Tuple_t *temp;
-    for(int i = 0; i < HASHSIZE; i++){
-        temp = NULL;
-        for(Tuple_t *tp = tbl->ht[i]; tp; tp = tp-> next){
-            if(tuple_match(query, tp)){
-                if(result->ht[i]==NULL){
-                    result->ht[i] = tp;
-                }
-                else{
-                    temp = result->ht[i];
-                    while(temp != NULL){
-                        temp = temp->next;
-                        
+    
+    for (int i = 0; i < HASHSIZE; i++) {
+        for (Tuple_t *tp = tbl->ht[i]; tp; tp = tp->next) {
+            if (tuple_match(query, tp)) {
+                if (result->ht[i] == NULL) {
+                    result->ht[i] = tuple_clone(tp);
+                } else {
+                    Tuple_t *tail = result->ht[i];
+                    while (tail->next != NULL) {
+                        tail = tail->next;
                     }
-                    temp = tp;
+                    tail->next = tuple_clone(tp);
                 }
             }
         }
     }
+    tuple_destroy(query);
     return result;
 }
+
+Table_t *db_select(Database_t *db, const char *cond, const char *table_name) {
+    return db_lookup(db, cond, table_name);
+}
+
+/*
+ * TODO:
+ *  Database_t *db_load(const char *name);
+ *  bool db_dump(Database_t *db);
+ *  Table_t *db_project(Table_t *tbl, char *attrs);
+ *  Table_t *db_join(Table_t *R, Table_t *S);
+ */
+
+#if 0
+#define ATT_Size 50
 char **return_atts(Tuple_t *tuple) {
-    int n       = tuple -> n_attrs;
+    int n = tuple->n_attrs;
     char **array;
-    array = malloc(sizeof(char*) * n);
+    array = malloc(sizeof(char *) * n);
     for (int j = 0; j < n; j++) {
         array[j] = malloc(sizeof(char) * ATT_Size);
     }
-    Attr_t *attr = tuple -> attr;
+    Attr_t *attr = tuple->attr;
     for (int i = 0; i < n; i++) {
-        array[i] = attr -> value;
-        attr = attr -> next;
+        array[i] = attr->value;
+        attr = attr->next;
     }
     return array;
 }
 
-void destroy_atts(char** atts, int n) {
+void destroy_atts(char **atts, int n) {
     for (int i = 0; i < n; i++) {
         free(atts[i]);
     }
     free(atts);
 }
 
-//Checks to see if the tuples are equal
+// Checks to see if the tuples are equal
 bool equals_tt(Tuple_t *tuple1, Tuple_t *tuple2) {
-    Attr_t *attr1 = tuple1 -> attr;
-    Attr_t *attr2 = tuple2 -> attr;
-    if (tuple1 -> n_attrs == tuple2 -> n_attrs) {
-        int n_attr = tuple1 -> n_attrs;
+    Attr_t *attr1 = tuple1->attr;
+    Attr_t *attr2 = tuple2->attr;
+    if (tuple1->n_attrs == tuple2->n_attrs) {
+        int n_attr = tuple1->n_attrs;
         for (int i = 1; i <= n_attr; i++) {
-            if (!(STREQ(attr1 -> value, attr2 -> value))) {
+            if (!(STREQ(attr1->value, attr2->value))) {
                 return false;
             }
-            attr1 = attr1 -> next;
-            attr2 = attr2 -> next;
+            attr1 = attr1->next;
+            attr2 = attr2->next;
         }
     } else {
         return false;
@@ -319,22 +324,21 @@ bool equals_tt(Tuple_t *tuple1, Tuple_t *tuple2) {
     return true;
 }
 
-
 bool equals_ts(Tuple_t *tuple1, char *tuple2) {
-    Attr_t *attr1 = tuple1 -> attr;
-    //checks to see the size of the tuple string
+    Attr_t *attr1 = tuple1->attr;
+    // checks to see the size of the tuple string
     int i = 0;
     int n_attrs = 1;
     while (tuple2[i] != '\0') {
         if (tuple2[i] == '|') {
-            n_attrs +=1;
+            n_attrs += 1;
         }
         i++;
     }
-    if (tuple1 -> n_attrs == n_attrs) {
+    if (tuple1->n_attrs == n_attrs) {
         i = 0;
         int j = 0;
-        char* key = "";
+        char *key = "";
         for (int i = 1; i <= n_attrs; i++) {
             while (tuple2[i] != '|' || tuple2[i] != '\0') {
                 j = 0;
@@ -342,7 +346,7 @@ bool equals_ts(Tuple_t *tuple1, char *tuple2) {
                 i++;
                 j++;
             }
-            if (attr1 -> name != key) {
+            if (attr1->name != key) {
                 return false;
             }
             key = "";
@@ -353,7 +357,8 @@ bool equals_ts(Tuple_t *tuple1, char *tuple2) {
     return true;
 }
 
-char *return_schema(const char* schema,const char *cond, const char *attribute) {
+char *
+return_schema(const char *schema, const char *cond, const char *attribute) {
     int i = 0;
     int place_holder = 0;
     while (schema[i] != '\0') {
@@ -362,7 +367,7 @@ char *return_schema(const char* schema,const char *cond, const char *attribute) 
         }
         i++;
     }
-    //counts up the size of the attribute word
+    // counts up the size of the attribute word
     int s = 0;
     while (attribute[s] != '\0') {
         s++;
@@ -374,59 +379,28 @@ char *return_schema(const char* schema,const char *cond, const char *attribute) 
     while (schema[n] != '\0') {
         if (n == place_holder) {
             while (attribute[z] != '\0') {
-                result[n+z] = attribute[z];
+                result[n + z] = attribute[z];
                 z++;
             }
             n = n + z;
-            if (n == (i+s+1)) {
+            if (n == (i + s + 1)) {
                 break;
             }
             result[n] = '|';
             n++;
         } else {
-            if (n == (i+s+1)) {
+            if (n == (i + s + 1)) {
                 break;
             }
             result[n] = '*';
             n++;
-            if (n == (i+s+1)) {
+            if (n == (i + s + 1)) {
                 break;
             }
             result[n] = '|';
             n++;
         }
-        
-        
     }
     return result;
 }
-    
-
-
-Table_t *db_select(Database_t *db, const char *cond, const char *attribute, const char *gen_schema) {
-    
-    char *string = return_schema(gen_schema, cond, attribute);
-    
-    //printf("%s\n", string);
-    return db_lookup(db, string, gen_schema);
-}
-
-/*
-void db_destroy(Database_t *db);
-
-Database_t *db_load(const char *name);
-bool db_dump(Database_t *db);
-
-void db_delete(Database_t *db, const char *filter, const char *tblname);
-Result_t *db_lookup(Database_t *db, const char *tuple, const char *tblname);
-Table_t *db_gettable(Database_t *db, const char *name);
-Table_t *db_project(Table_t *tbl, char *attrs);
-Table_t *db_join(Table_t *R, Table_t *S);
-
-void table_print(Table_t *tbl);
-void table_destroy(Table_t *tbl);
-
-void print_result(Result_t *res);
-
-void result_destroy(Result_t *res);
-*/
+#endif

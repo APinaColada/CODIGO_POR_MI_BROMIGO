@@ -1,11 +1,11 @@
-#include "database.c"
+#include "database.h"
 
 int main() {
     Database_t *db = db_create("Registrar");
-
+    
     db_addtable(db, "CSG", "Course|StudentId|Grade");
     db_addtable(db, "CR", "Course|Room");
-
+    
     db_insert(db, "CSG", "PH100|67890|C+");
     db_insert(db, "CSG", "EE200|12345|C");
     db_insert(db, "CSG", "EE200|22222|B+");
@@ -22,16 +22,14 @@ int main() {
     
     table_print(CSG);
     table_print(CR);
-    db_delete(db,"CR", "CS101|*");
+    db_delete(db, "CR", "CS101|*");
     table_print(CR);
     Table_t *result = db_lookup(db, "EE200|*|*", "CSG");
     table_print(result);
+    table_destroy(result);
     
-    
-    Table_t *result2 = db_select(db, "C", "EE200", "CSG");
+    Table_t *result2 = db_select(db, "EE200|*|*", "CSG");
     table_print(result2);
+    table_destroy(result2);
     db_destroy(db);
-    
-    
-    
 }
