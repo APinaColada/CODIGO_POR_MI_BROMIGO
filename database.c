@@ -375,6 +375,78 @@ bool equals_tt(Tuple_t *tuple1, Tuple_t *tuple2) {
     return true;
 }
 
+void write_to_file(Database_t *db) {
+    FILE *file = fopen("Database_Data.txt", "w");
+    Table_t *tb = db -> tbl;
+    while (tb != NULL) {
+        fprintf(file, "*\n");
+        int n = fprintf(file, "%s\n", tb->schema);
+        fprintf(file,"%s\n", tb->name);
+        for (int i = 0; i < n; i++)
+            fprintf(file, "=");
+        fprintf(file, "\n");
+        for (int i = 0; i < HASHSIZE; i++) {
+            for (Tuple_t *tpl = tb->ht[i]; tpl != NULL; tpl = tpl->next)
+                tuple_print(file, tpl);
+        }
+        tb = tb->next;
+    }
+    
+    fclose(file);
+}
+
+Database_t *read_from_file() {
+    
+    // open the file for reading and create the new Database
+    FILE *file = fopen("Database_Data.txt", "r");
+    Database_t *db = db_create("Registrar");
+    
+    // make sure the file opened properly
+    if(NULL == file)
+    {
+        fprintf(stderr, "Cannot open file: 'Database_Data.txt'\n");
+    }
+    
+    // set up the buffer to read the line into. Don't worry too much
+    // if some of the lines are longer than 80 characters - the buffer
+    // will be made bigger if need be.
+    size_t buffer_size = 80;
+    char *buffer = malloc(buffer_size * sizeof(char));
+    //first and second line will hold the shema and the name of the table
+    char *first_line = malloc(buffer_size * sizeof(char));
+    char *second_line = malloc(buffer_size * sizeof(char));
+    
+    // read each line and print it to the screen
+    int line_number = 0;
+    while(-1 != getline(&buffer, &buffer_size, file))
+    {
+        if (buffer[0] == '*') {
+            getline(&buffer, &buffer_size, file);
+            first_line = strdup(buffer);
+            first_line[strlen(buffer) - 1] = '\0';
+            getline(&buffer, &buffer_size, file);
+            second_line = strdup(buffer);
+            second_line[strlen(buffer) - 1] = '\0';
+            db_addtable(db, second_line, first_line);
+            
+        } else {
+            if (buffer[0] == '=') {
+                //do nothing and go onto the next line
+            } else {
+                buffer[strlen(buffer) - 1] = '\0';
+                db_insert(db, second_line, buffer);
+            }
+        }
+    }
+    fflush(stdout);
+    
+    fclose(file);
+    free(buffer);
+    free(first_line);
+    free(second_line);
+    return db;
+}
+
 bool equals_ts(Tuple_t *tuple1, char *tuple2) {
     Attr_t *attr1 = tuple1->attr;
     // checks to see the size of the tuple string
