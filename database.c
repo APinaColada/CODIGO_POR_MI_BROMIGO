@@ -353,7 +353,63 @@ bool equals_ts(Tuple_t *tuple1, char *tuple2) {
     return true;
 }
 
+char *return_schema(const char* schema,const char *cond, const char *attribute) {
+    int i = 0;
+    int place_holder = 0;
+    while (schema[i] != '\0') {
+        if (cond[0] == schema[i]) {
+            place_holder = i;
+        }
+        i++;
+    }
+    //counts up the size of the attribute word
+    int s = 0;
+    while (attribute[s] != '\0') {
+        s++;
+    }
+    
+    char *result = malloc(sizeof(char));
+    int n = 0;
+    int z = 0;
+    while (schema[n] != '\0') {
+        if (n == place_holder) {
+            while (attribute[z] != '\0') {
+                result[n+z] = attribute[z];
+                z++;
+            }
+            n = n + z;
+            if (n == (i+s+1)) {
+                break;
+            }
+            result[n] = '|';
+            n++;
+        } else {
+            if (n == (i+s+1)) {
+                break;
+            }
+            result[n] = '*';
+            n++;
+            if (n == (i+s+1)) {
+                break;
+            }
+            result[n] = '|';
+            n++;
+        }
+        
+        
+    }
+    return result;
+}
+    
 
+
+Table_t *db_select(Database_t *db, const char *cond, const char *attribute, const char *gen_schema) {
+    
+    char *string = return_schema(gen_schema, cond, attribute);
+    
+    //printf("%s\n", string);
+    return db_lookup(db, string, gen_schema);
+}
 
 /*
 void db_destroy(Database_t *db);
@@ -363,7 +419,6 @@ bool db_dump(Database_t *db);
 
 void db_delete(Database_t *db, const char *filter, const char *tblname);
 Result_t *db_lookup(Database_t *db, const char *tuple, const char *tblname);
-Table_t *db_select(Table_t *tbl, const char *cond);
 Table_t *db_gettable(Database_t *db, const char *name);
 Table_t *db_project(Table_t *tbl, char *attrs);
 Table_t *db_join(Table_t *R, Table_t *S);
