@@ -41,7 +41,7 @@ bool db_dump(Database_t *db);
 bool db_insert(Database_t *db, const char *table_name, const char *row);
 void db_delete(Database_t *db, const char *table_name, const char *where);
 Table_t *db_lookup(Database_t *db,const char *where, const char *table_name);
-Table_t *db_select(Table_t *tbl, const char *cond);
+Table_t *db_select(Database_t *db, const char *cond, const char *attribute, const char *gen_schema);
 Table_t *db_gettable(Database_t *db, const char *table_name);
 Table_t *db_project(Table_t *tbl, char *cols);
 Table_t *db_join(Table_t *R, Table_t *S);
