@@ -50,6 +50,10 @@ void table_print(Table_t *tbl);
 
 void table_destroy(Table_t *tbl);
 
+void write_to_file(Database_t *db);
+
+Database_t *read_from_file();
+
 #if 0
 void print_tuple(Tuple_t *tuple);
 
