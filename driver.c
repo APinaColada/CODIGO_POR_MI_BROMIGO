@@ -22,8 +22,10 @@ int main() {
     
     table_print(CSG);
     table_print(CR);
+    
     db_delete(db, "CR", "CS101|*");
     table_print(CR);
+    
     Table_t *result = db_lookup(db, "EE200|*|*", "CSG");
     table_print(result);
     table_destroy(result);
@@ -31,5 +33,12 @@ int main() {
     Table_t *result2 = db_select(db, "EE200|*|*", "CSG");
     table_print(result2);
     table_destroy(result2);
+    
+    Table_t *result3 = db_project(CSG, "*|StudentId|Grade");
+    table_print(result3);
+    table_destroy(result3);
+    
+    
+    
     db_destroy(db);
 }

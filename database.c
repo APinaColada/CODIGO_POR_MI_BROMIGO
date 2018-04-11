@@ -83,6 +83,7 @@ Tuple_t *tuple_clone(Tuple_t *tuple) {
     return clone;
 }
 
+
 void tuple_destroy(Tuple_t *tuple) {
     if (tuple != NULL) {
         Attr_t *attr = tuple->attr;
@@ -128,6 +129,7 @@ void db_destroy(Database_t *db) {
     }
 }
 
+
 // pass in query followed by the tuple
 bool tuple_match(Tuple_t *query, Tuple_t *tuple) {
     Attr_t *q_attr = query->attr;
@@ -167,6 +169,7 @@ void table_print(Table_t *tbl) {
         for (Tuple_t *tpl = tbl->ht[i]; tpl != NULL; tpl = tpl->next)
             tuple_print(stdout, tpl);
     }
+    printf("\n");
 }
 
 Table_t *db_gettable(Database_t *db, const char *name) {
@@ -273,11 +276,59 @@ Table_t *db_select(Database_t *db, const char *cond, const char *table_name) {
     return db_lookup(db, cond, table_name);
 }
 
+
+Tuple_t *project(Table_t *tbl,Tuple_t *tuple, char *attrs) {
+    if(attrs == NULL){
+        return tuple_clone(tuple);
+    }
+    else{
+        Tuple_t *project = tuple_create(tbl->schema, attrs);
+        Tuple_t *clone = calloc(1, sizeof(Tuple_t));
+        clone->n_attrs = tuple->n_attrs;
+        Attr_t *attr_Clone = clone->attr;
+        Attr_t *proj = project->attr;
+        for (Attr_t *attr = tuple->attr; attr != NULL; attr = attr->next) {
+            if(STREQ(proj->value, "*")){
+                proj= proj->next;
+            }
+            else{
+                if (attr_Clone == NULL) {
+                    attr_Clone = attr_clone(attr);
+                    clone->attr = attr_Clone;
+                } else {
+                    attr_Clone->next = attr_clone(attr);
+                    attr_Clone = attr_Clone->next;
+                }}
+        }
+        tuple_destroy(project);
+        return clone;
+    }
+}
+
+Table_t *db_project(Table_t *tbl, char *attrs){
+    Table_t *result = calloc(1, sizeof(Table_t));
+    result->name = strdup(tbl->name);
+    result->schema = strdup(tbl->schema);
+    for (int i = 0; i < HASHSIZE; i++) {
+        for (Tuple_t *tp = tbl->ht[i]; tp; tp = tp->next) {
+            if (result->ht[i] == NULL) {
+                result->ht[i] = project(tbl,tp, attrs);
+            } else {
+                Tuple_t *tail = result->ht[i];
+                while (tail->next != NULL) {
+                    tail = tail->next;
+                }
+                tail->next = project(tbl, tp, attrs);
+            }
+        }
+    }
+    return result;
+}
+
 /*
  * TODO:
  *  Database_t *db_load(const char *name);
  *  bool db_dump(Database_t *db);
- *  Table_t *db_project(Table_t *tbl, char *attrs);
  *  Table_t *db_join(Table_t *R, Table_t *S);
  */
 
