@@ -148,24 +148,32 @@ int main() {
     CR = db_gettable(new_db, "CR");
     table_print(CR);
     
-    /*
-    db_delete(db, "CR", "CS101|*");
-    table_print(CR);
+    printf("********\n");
+    printf("PART 2 *\n");
+    printf("********\n");
     
-    Table_t *result = db_lookup(db, "EE200|*|*", "CSG");
-    table_print(result);
-    table_destroy(result);
+    printf("We will now perform the 2 questions for Part 2 of the project\n");
+    printf("1) What grade did StudentName get in CourseName? \n");
+    printf("Hit Enter to see the Result: \n");
+    scanf("%c", input);
     
-    Table_t *result2 = db_select(db, "EE200|*|*", "CSG");
-    table_print(result2);
-    table_destroy(result2);
+    //place for answer
     
-    Table_t *result3 = db_project(CSG, "*|StudentId|Grade");
-    table_print(result3);
-    table_destroy(result3);
+    printf("2) Where is StudentName at Time on Day? \n");
+    printf("Hit Enter to see the Result: \n");
+    scanf("%c", input);
     
+    //place for answer
     
-    */
+    printf("********\n");
+    printf("PART 3 *\n");
+    printf("********\n");
+    
+    printf("********\n");
+    printf("Extra Credit *\n");
+    printf("********\n");
+    
+    printf("We decided to go for extra credit in this project and create a generic database data structure. To prove this, we will make a database for MLB Baseball Player's Fortnite statistics. Our Schemas will be <Name-Team-Position>, <Name-WinRate-Rank>, < )
     db_destroy(new_db);
     free(input);
 }
