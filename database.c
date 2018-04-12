@@ -397,6 +397,8 @@ Table_t *db_join(Table_t *R, Table_t *S, const char *name, const char *schema) {
             }
         }
     }
+    tuple_destroy(t1);
+    tuple_destroy(t2);
     tuple_destroy(I);
     return join;
 }
