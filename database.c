@@ -310,10 +310,10 @@ Tuple_t *project(Table_t *tbl, Tuple_t *tuple, char *attrs) {
     }
 }
 
-Table_t *db_project(Table_t *tbl, char *attrs) {
+Table_t *db_project(Table_t *tbl, char *attrs, char *schema) {
     Table_t *result = calloc(1, sizeof(Table_t));
     result->name = strdup(tbl->name);
-    result->schema = strdup(attrs);
+    result->schema = strdup(schema);
     for (int i = 0; i < HASHSIZE; i++) {
         for (Tuple_t *tp = tbl->ht[i]; tp; tp = tp->next) {
             if (result->ht[i] == NULL) {
@@ -474,4 +474,3 @@ Database_t *read_from_file() {
     free(table_name);
     return db;
 }
-
