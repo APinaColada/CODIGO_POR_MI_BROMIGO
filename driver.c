@@ -2,7 +2,7 @@
 
 int main() {
     Database_t *db = db_create("Registrar");
-    char *input;
+    char *input= malloc(sizeof(char*));
     setbuf(stdout, NULL);
     
     printf("Hit enter to start the walkthrough of Alejandro and Tyler's Database\n");
@@ -46,9 +46,9 @@ int main() {
     db_insert(db, "CDH", "EE200|Th|10AM");
     
     //inserting CR data
-    db_insert(db, "CR", "CS101|R130");
-    db_insert(db, "CR", "CS101|R100");
-    db_insert(db, "CR", "EE200|R100");
+    db_insert(db, "CR", "CS101|Turing Aud");
+    db_insert(db, "CR", "EE200|25 Ohm Hall");
+    db_insert(db, "CR", "PH100|Newton Lab");
     
     Table_t *CSG = db_gettable(db, "CSG");
     Table_t *SNAP = db_gettable(db, "SNAP");
@@ -141,6 +141,13 @@ int main() {
     searched_table = db_lookup(new_db, "*|W|*", "CDH");
     table_print(searched_table);
     
+    printf("We will also add back the deleted CS101 class from the Course-Room Schema. Hit Enter to see the new table\n");
+    scanf("%c", input);
+    
+    db_insert(new_db, "CR", "CS101|Turing Aud");
+    CR = db_gettable(new_db, "CR");
+    table_print(CR);
+    
     /*
     db_delete(db, "CR", "CS101|*");
     table_print(CR);
@@ -160,4 +167,5 @@ int main() {
     
     */
     db_destroy(new_db);
+    free(input);
 }
