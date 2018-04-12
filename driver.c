@@ -84,14 +84,14 @@ int main() {
     printf("    a) lookup(('CS101', 12345, *), Course-StudentID-Grade)\n");
     printf("    Hit Enter to see answer: \n");
     scanf("%c", input);
-    Table_t *searched_table = db_lookup(db, "CS101|12345|*", "CSG");
+    Table_t *searched_table = db_lookup(db_gettable(db, "CSG"),  "CS101|12345|*");
     table_print(searched_table);
     printf("\n");
     
     printf("    b) lookup(('CS205', 'CS120'), Course-Prerequisite)\n");
     printf("    Hit Enter to see answer: \n");
     scanf("%c", input);
-    searched_table = db_lookup(db, "CS205|CS120", "CP");
+    searched_table = db_lookup(db_gettable(db, "CP"), "CS205|CS120");
     table_print(searched_table);
     printf("\n");
     
@@ -138,7 +138,7 @@ int main() {
     printf("To prove that the new database works, we will run it through a few lookup, insert, and delete functions. The first function is to lookup all the courses that are held on a Wednesday. Hit enter to see\n");
     scanf("%c", input);
     
-    searched_table = db_lookup(new_db, "*|W|*", "CDH");
+    searched_table = db_lookup(db_gettable(new_db, "CDH"), "*|W|*");
     table_print(searched_table);
     
     printf("We will also add back the deleted CS101 class from the Course-Room Schema. Hit Enter to see the new table\n");
@@ -155,13 +155,15 @@ int main() {
     Table_t *new_table;
     
     printf("We will now perform the 2 questions for Part 2 of the project\n");
-    printf("1) What grade did C. Brown get in CS101? \n");
+    printf("1) What grade did P. Patty get in EE200? \n");
     printf("Hit Enter to see the Result: \n");
     scanf("%c", input);
-    
-    //new_table = db_select(db, )
-    //new_table = db_project(new_table, "*|*|*|*|Grade")
-    //Project Grade(Select Name(Join Snap and CSG))
+
+    //Table_t *SN = db_project(db_gettable(new_db, "SNAP"), "StudentID|Name|*|*");
+    //Table_t *CSGN = db_join(db_gettable(new_db, "CSG"), SN, "CSGN", "Course|StudentID|Grade|Name");
+    //Table_t *EE200 = db_select(CSGN, "EE200|*|*|P. Patty");
+    //Table_t *Grade = db_project(EE200, "*|*|Grade|*");
+    //table_print(Grade);    
     
     printf("2) Where is L. Van Pelt at 9 AM on Monday? \n");
     printf("Hit Enter to see the Result: \n");
@@ -176,14 +178,14 @@ int main() {
     printf("Type Enter to see result: ");
     scanf("%c", input);
     
-    new_table = db_select(new_db,"CS101|*|*", "CSG");
+    new_table = db_select(db_gettable(new_db, "CSG"), "CS101|*|*");
     table_print(new_table);
     
     printf("8.13) Result");
     printf("Type Enter to see result: ");
     scanf("%c", input);
     
-    new_table = db_select(new_db, "CS101|*|*", "CSG");
+    new_table = db_select(db_gettable(new_db, "CSG"),  "CS101|*|*");
     new_table = db_project(new_table, "*|StudentID|*");
     table_print(new_table);
     
@@ -192,18 +194,20 @@ int main() {
     scanf("%c", input);
     
     //Join Function will go here
+    Table_t *CDHR_ = db_join(db_gettable(new_db, "CDH"), db_gettable(new_db, "CR"), "CDHR", "Course|Day|Hour|Room");
+    table_print(CDHR_);
     
     printf("8.15) Result");
     printf("Type Enter to see result: ");
     scanf("%c", input);
     
     //Join Function will go here
+    table_print(CDHR_);
+    Table_t *Turing = db_select(CDHR_, "*|*|*|Turing Aud");
+    table_print(Turing);
+    Table_t *DH = db_project(Turing, "*|Day|Hour|*"); 
+    table_print(DH);
     
-    new_table = db_select(new_db, "*|Turing Aud|*|*", "CRDH");
-    new_table = db_project(new_table, "*|*|Day|Hour");
-    table_print(new_table);
-
     db_destroy(new_db);
     free(input);
-     
 }
