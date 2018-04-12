@@ -152,14 +152,18 @@ int main() {
     printf("PART 2 *\n");
     printf("********\n");
     
+    Table_t *new_table;
+    
     printf("We will now perform the 2 questions for Part 2 of the project\n");
-    printf("1) What grade did StudentName get in CourseName? \n");
+    printf("1) What grade did C. Brown get in CS101? \n");
     printf("Hit Enter to see the Result: \n");
     scanf("%c", input);
     
+    //new_table = db_select(db, )
+    //new_table = db_project(new_table, "*|*|*|*|Grade")
     //Project Grade(Select Name(Join Snap and CSG))
     
-    printf("2) Where is StudentName at Time on Day? \n");
+    printf("2) Where is L. Van Pelt at 9 AM on Monday? \n");
     printf("Hit Enter to see the Result: \n");
     scanf("%c", input);
     
@@ -172,7 +176,6 @@ int main() {
     printf("Type Enter to see result: ");
     scanf("%c", input);
     
-    Table_t *new_table;
     new_table = db_select(new_db,"CS101|*|*", "CSG");
     table_print(new_table);
     
@@ -188,9 +191,17 @@ int main() {
     printf("Type Enter to see result: ");
     scanf("%c", input);
     
+    //Join Function will go here
+    
     printf("8.15) Result");
     printf("Type Enter to see result: ");
     scanf("%c", input);
+    
+    //Join Function will go here
+    
+    new_table = db_select(new_db, "*|Turing Aud|*|*", "CRDH");
+    new_table = db_project(new_table, "*|*|Day|Hour");
+    table_print(new_table);
 
     db_destroy(new_db);
     free(input);
