@@ -86,6 +86,7 @@ int main() {
     scanf("%c", input);
     Table_t *searched_table = db_lookup(db_gettable(db, "CSG"),  "CS101|12345|*");
     table_print(searched_table);
+    // table_destroy(searched_table);
     printf("\n");
     
     printf("    b) lookup(('CS205', 'CS120'), Course-Prerequisite)\n");
@@ -93,6 +94,7 @@ int main() {
     scanf("%c", input);
     searched_table = db_lookup(db_gettable(db, "CP"), "CS205|CS120");
     table_print(searched_table);
+    // table_destroy(searched_table);
     printf("\n");
     
     printf("    c) delete(('CS101', '*'), Course-Room)\n");
@@ -140,6 +142,7 @@ int main() {
     
     searched_table = db_lookup(db_gettable(new_db, "CDH"), "*|W|*");
     table_print(searched_table);
+    // table_destroy(searched_table);
     
     printf("We will also add back the deleted CS101 class from the Course-Room Schema. Hit Enter to see the new table\n");
     scanf("%c", input);
@@ -147,12 +150,11 @@ int main() {
     db_insert(new_db, "CR", "CS101|Turing Aud");
     CR = db_gettable(new_db, "CR");
     table_print(CR);
+    // table_destroy(CR);
     
     printf("********\n");
     printf("PART 2 *\n");
     printf("********\n");
-    
-    Table_t *new_table;
     
     printf("We will now perform the 2 questions for Part 2 of the project\n");
     printf("1) What grade did P. Patty get in EE200? \n");
@@ -164,18 +166,24 @@ int main() {
     Table_t *EE200 = db_select(CSGN, "EE200|*|*|P. Patty");
     Table_t *Grade = db_project(EE200, "*|*|Grade|*", "Grade");
     table_print(Grade);    
+    // table_destroy(SN);
+    // table_destroy(EE200);
+    // table_destroy(Grade);
     
     printf("2) Where is C. Brown at 9 AM on Monday? \n");
     printf("Hit Enter to see the Result: \n");
     scanf("%c", input);
 
-#if 0
-    Table_t *CSGNR = db_join(CSGN, db_gettable(db, "CR"), "CSGNR", "Course|StudentID|Grade|Name|Room");
-    Table_t *CSGNRDH = db_join(CSGNR, db_gettable(db, "CDH"), "CSGNRDH", "Course|StudentID|Grade|Name|Room|Day|Hour");
+    Table_t *CSGNR = db_join(CSGN, db_gettable(new_db, "CR"), "CSGNR", "Course|StudentID|Grade|Name|Room");
+    Table_t *CSGNRDH = db_join(CSGNR, db_gettable(new_db, "CDH"), "CSGNRDH", "Course|StudentID|Grade|Name|Room|Day|Hour");
     Table_t *NRDH = db_select(CSGNRDH, "*|*|*|C. Brown|*|M|9AM");
-    Table_t *Room = db_project(NRDH, "*|Room|*|*", "Room");
+    Table_t *Room = db_project(NRDH, "*|*|*|*|Room|*|*", "Room");
     table_print(Room);
-#endif
+    // table_destroy(CSGNR);
+    // table_destroy(CSGNRDH);
+    // table_destroy(NRDH);
+    // table_destroy(Room);
+    // table_destroy(CSGN);
 
     printf("********\n");
     printf("PART 3 *\n");
@@ -186,22 +194,24 @@ int main() {
     printf("Type Enter to see result: ");
     scanf("%c", input);
     
-    new_table = db_select(db_gettable(new_db, "CSG"), "CS101|*|*");
-    table_print(new_table);
+    CSG = db_select(db_gettable(new_db, "CSG"), "CS101|*|*");
+    table_print(CSG);
+    // table_destroy(CSG);
     
     printf("8.13) Result");
     printf("Type Enter to see result: ");
     scanf("%c", input);
     
-    new_table = db_select(db_gettable(new_db, "CSG"),  "CS101|*|*");
-    new_table = db_project(new_table, "*|StudentID|*", "StudentID");
-    table_print(new_table);
+    CSG = db_select(db_gettable(new_db, "CSG"),  "CS101|*|*");
+    Table_t *STUDENT_ID = db_project(CSG, "*|StudentID|*", "StudentID");
+    table_print(STUDENT_ID);
+    // table_destroy(CSG);
+    // table_destroy(STUDENT_ID);
     
     printf("8.14) Result");
     printf("Type Enter to see result: ");
     scanf("%c", input);
     
-    //Join Function will go here
     Table_t *CDHR_ = db_join(db_gettable(new_db, "CDH"), db_gettable(new_db, "CR"), "CDHR", "Course|Day|Hour|Room");
     table_print(CDHR_);
     
@@ -210,11 +220,12 @@ int main() {
     scanf("%c", input);
     
     //Join Function will go here
-    table_print(CDHR_);
     Table_t *Turing = db_select(CDHR_, "*|*|*|Turing Aud");
-    table_print(Turing);
     Table_t *DH = db_project(Turing, "*|Day|Hour|*", "Day|Hour"); 
     table_print(DH);
+    // table_destroy(DH);
+    // table_destroy(Turing);
+    // table_destroy(CDHR_);
     
     db_destroy(new_db);
     free(input);
