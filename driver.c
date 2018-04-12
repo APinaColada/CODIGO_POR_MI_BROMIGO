@@ -8,7 +8,7 @@ int main() {
     printf("Hit enter to start the walkthrough of Alejandro and Tyler's Database\n");
     scanf("%c", input);
     //adding tables from 8.1 and 8.2 in Foundations of Computer Science by Aho and Ullman
-    db_addtable(db, "CSG", "Course|StudentId|Grade");
+    db_addtable(db, "CSG", "Course|StudentID|Grade");
     db_addtable(db, "SNAP", "StudentID|Name|Address|Phone");
     db_addtable(db, "CP", "Course|Prerequisite");
     db_addtable(db, "CDH", "Course|Day|Hour");
@@ -159,16 +159,24 @@ int main() {
     printf("Hit Enter to see the Result: \n");
     scanf("%c", input);
 
-    //Table_t *SN = db_project(db_gettable(new_db, "SNAP"), "StudentID|Name|*|*");
-    //Table_t *CSGN = db_join(db_gettable(new_db, "CSG"), SN, "CSGN", "Course|StudentID|Grade|Name");
-    //Table_t *EE200 = db_select(CSGN, "EE200|*|*|P. Patty");
-    //Table_t *Grade = db_project(EE200, "*|*|Grade|*");
-    //table_print(Grade);    
+    Table_t *SN = db_project(db_gettable(new_db, "SNAP"), "StudentID|Name|*|*", "StudentID|Name");
+    Table_t *CSGN = db_join(db_gettable(new_db, "CSG"), SN, "CSGN", "Course|StudentID|Grade|Name");
+    Table_t *EE200 = db_select(CSGN, "EE200|*|*|P. Patty");
+    Table_t *Grade = db_project(EE200, "*|*|Grade|*", "Grade");
+    table_print(Grade);    
     
-    printf("2) Where is L. Van Pelt at 9 AM on Monday? \n");
+    printf("2) Where is C. Brown at 9 AM on Monday? \n");
     printf("Hit Enter to see the Result: \n");
     scanf("%c", input);
-    
+
+#if 0
+    Table_t *CSGNR = db_join(CSGN, db_gettable(db, "CR"), "CSGNR", "Course|StudentID|Grade|Name|Room");
+    Table_t *CSGNRDH = db_join(CSGNR, db_gettable(db, "CDH"), "CSGNRDH", "Course|StudentID|Grade|Name|Room|Day|Hour");
+    Table_t *NRDH = db_select(CSGNRDH, "*|*|*|C. Brown|*|M|9AM");
+    Table_t *Room = db_project(NRDH, "*|Room|*|*", "Room");
+    table_print(Room);
+#endif
+
     printf("********\n");
     printf("PART 3 *\n");
     printf("********\n");
@@ -186,7 +194,7 @@ int main() {
     scanf("%c", input);
     
     new_table = db_select(db_gettable(new_db, "CSG"),  "CS101|*|*");
-    new_table = db_project(new_table, "*|StudentID|*");
+    new_table = db_project(new_table, "*|StudentID|*", "StudentID");
     table_print(new_table);
     
     printf("8.14) Result");
@@ -205,7 +213,7 @@ int main() {
     table_print(CDHR_);
     Table_t *Turing = db_select(CDHR_, "*|*|*|Turing Aud");
     table_print(Turing);
-    Table_t *DH = db_project(Turing, "*|Day|Hour|*"); 
+    Table_t *DH = db_project(Turing, "*|Day|Hour|*", "Day|Hour"); 
     table_print(DH);
     
     db_destroy(new_db);
