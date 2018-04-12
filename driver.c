@@ -157,23 +157,42 @@ int main() {
     printf("Hit Enter to see the Result: \n");
     scanf("%c", input);
     
-    //place for answer
+    //Project Grade(Select Name(Join Snap and CSG))
     
     printf("2) Where is StudentName at Time on Day? \n");
     printf("Hit Enter to see the Result: \n");
     scanf("%c", input);
     
-    //place for answer
-    
     printf("********\n");
     printf("PART 3 *\n");
     printf("********\n");
     
-    printf("********\n");
-    printf("Extra Credit *\n");
-    printf("********\n");
+    printf("We will no perform the examples in Section 8.8 of FOCS: \n");
+    printf("8.12) Result");
+    printf("Type Enter to see result: ");
+    scanf("%c", input);
     
-    printf("We decided to go for extra credit in this project and create a generic database data structure. To prove this, we will make a database for MLB Baseball Player's Fortnite statistics. Our Schemas will be <Name-Team-Position>, <Name-WinRate-Rank>, < )
+    Table_t *new_table;
+    new_table = db_select(new_db,"CS101|*|*", "CSG");
+    table_print(new_table);
+    
+    printf("8.13) Result");
+    printf("Type Enter to see result: ");
+    scanf("%c", input);
+    
+    new_table = db_select(new_db, "CS101|*|*", "CSG");
+    new_table = db_project(new_table, "*|StudentID|*");
+    table_print(new_table);
+    
+    printf("8.14) Result");
+    printf("Type Enter to see result: ");
+    scanf("%c", input);
+    
+    printf("8.15) Result");
+    printf("Type Enter to see result: ");
+    scanf("%c", input);
+
     db_destroy(new_db);
     free(input);
+     
 }
