@@ -192,7 +192,12 @@ static int tuple_hash(Tuple_t *tpl) {
 
 bool db_insert(Database_t *db, const char *name, const char *row) {
     Table_t *tbl = db_gettable(db, name);
-    
+    Table_t *lookup = db_lookup(db, row, name);
+    for(int i = 0; i < HASHSIZE; i++){
+        if(lookup->ht[i] != NULL){
+            return false;
+        }
+    }
     if (tbl != NULL) {
         Tuple_t *tuple = tuple_create(tbl->schema, row);
         int h = tuple_hash(tuple);
